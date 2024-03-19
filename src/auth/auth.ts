@@ -1,5 +1,5 @@
-import { User } from '@/api/model';
-import { getUser, loginWithGoogle, refreshToken } from '@/api/ticketerie';
+import { User } from '@/src/api/model';
+import { getUser, loginWithGoogle, refreshToken } from '@/src/api/ticketerie';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { jwtDecode } from 'jwt-decode';

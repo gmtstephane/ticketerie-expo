@@ -2,8 +2,8 @@ module.exports = {
   'ticketerie': {
     output: {
       mode: 'single',
-      target: './api/ticketerie.ts',
-      schemas: './api/model',
+      target: './src/api/ticketerie.ts',
+      schemas: './src/api/model',
       client: 'react-query',
     },
     input: {
