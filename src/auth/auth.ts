@@ -103,10 +103,10 @@ export namespace Auth {
 	}
 
 	export namespace Google {
-		const CLIENTID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-		GoogleSignin.configure({
-			webClientId: CLIENTID, // client ID of type WEB for your server. Required to get the idToken on the user object, and for offline access.
-		});
+		// // const CLIENTID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+		// GoogleSignin.configure({
+		// 	// webClientId: CLIENTID, // client ID of type WEB for your server. Required to get the idToken on the user object, and for offline access.
+		// });
 
 		export async function Login() {
 			try {

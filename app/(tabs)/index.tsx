@@ -4,7 +4,7 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { Auth } from '@/src/auth/auth';
 import { useEffect, useState } from 'react';
-import { User } from '@/src/api/model';
+import { User } from '@/api/model';
 import { router } from 'expo-router';
 
 export default function TabTwoScreen() {

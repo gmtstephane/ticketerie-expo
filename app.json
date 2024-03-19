@@ -16,7 +16,7 @@
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
 			"supportsTablet": true,
-			// "googleServicesFile": "./GoogleService-Info.plist",
+			"googleServicesFile": "./GoogleService-Info.plist",
 			"bundleIdentifier": "com.gmtstephane.ticketerie"
 		},
 		"android": {
