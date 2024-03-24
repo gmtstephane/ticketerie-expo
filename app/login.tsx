@@ -8,11 +8,9 @@ import { Text } from 'react-native-paper';
 
 interface LoginScreenProps {
 	onLoggingSuccess: () => void;
-	onLoggingFailure: (error: Error) => void;
+	onLoggingFailure: (e: any) => void;
 }
 export default function LoginPage({ onLoggingSuccess, onLoggingFailure }: LoginScreenProps) {
-	axios.defaults.baseURL = 'http://localhost:4321/'; // use your own URL here or environment variable
-
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Tab One</Text>
@@ -23,10 +21,17 @@ export default function LoginPage({ onLoggingSuccess, onLoggingFailure }: LoginS
 				onPress={async () => {
 					await Auth.Google.Login()
 						.then(() => {
-							onLoggingSuccess();
+							if (onLoggingSuccess) {
+								onLoggingSuccess();
+							} else {
+								router.push({ pathname: '/' });
+							}
 						})
 						.catch((error) => {
-							onLoggingFailure(error);
+							console.log('error', error);
+							if (onLoggingFailure) {
+								onLoggingFailure(error);
+							}
 						});
 				}}
 			/>

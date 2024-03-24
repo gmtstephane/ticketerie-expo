@@ -57,6 +57,14 @@ paths:
     get:
       summary: Get list of events
       operationId: getEvents
+      parameters:
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         "200":
           description: An array of event descriptions
@@ -85,6 +93,63 @@ paths:
                 $ref: "#/components/schemas/Event"
         "404":
           description: Event not found
+  /teams/{id}:
+    get:
+      summary: Get team by ID
+      operationId: getTeamById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDetail"
+        "404":
+          description: Event not found
+  /teams/search:
+    get:
+      summary: Search teams
+      operationId: searchTeams
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: An array of team descriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SearchTeam"
+  /events/search:
+    get:
+      summary: Search events
+      operationId: searchEvents
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: An array of event descriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SearchEvent"
 components:
   schemas:
     EventType:
@@ -363,9 +428,9 @@ components:
         - updatedAt
         - awayTeam
         - homeTeam
-        - tickets
         - championship
         - location
+        - tickets
         - sport
       properties:
         id:
@@ -525,3 +590,84 @@ components:
         - $ref: "#/components/schemas/EventTeam"
         - $ref: "#/components/schemas/EventPlayer"
         - $ref: "#/components/schemas/EventGeneric"
+    SearchTeam:
+      type: object
+      required:
+        - id
+        - name
+        - icon
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        icon:
+          type: string
+          format: uri
+    SearchEvent:
+      type: object
+      required:
+        - id
+        - name
+        - icon
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          format: uri
+    TeamDetail:
+      type: object
+      required:
+        - id
+        - name
+        - sportId
+        - locationId
+        - icon
+        - championshipsId
+        - createdAt
+        - location
+        - awayEvents
+        - homeEvents
+        - sport
+        - championships
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sportId:
+          type: integer
+        locationId:
+          type: integer
+        icon:
+          type: string
+        championshipsId:
+          type: array
+          items:
+            type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        location:
+          $ref: "#/components/schemas/Location"
+        awayEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventTeam"
+        homeEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventTeam"
+        sport:
+          $ref: "#/components/schemas/Sport"
+        championships:
+          type: array
+          items:
+            $ref: "#/components/schemas/Championship"

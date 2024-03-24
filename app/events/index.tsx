@@ -1,9 +1,11 @@
 import { frenchDate } from '@/components/EventCard';
 import { Championship, Event, EventGeneric, EventPlayer, EventTeam, Location, Ticket } from '@/src/api/model';
 import { useGetEventById } from '@/src/api/ticketerie';
+import { Favorites } from '@/src/favs/store';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useGlobalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Appbar, Chip, List, MD3Colors, Text, useTheme } from 'react-native-paper';
 
@@ -11,22 +13,25 @@ export default function Page() {
 	const local = useGlobalSearchParams();
 	const colors = useTheme().colors;
 	const router = useRouter();
-
+	const [favorite, setFavorite] = useState(false);
+	let id: string;
 	if (!local.id || typeof local.id !== 'string') {
 		router.back();
 		return null;
 	}
+	id = local.id;
+
+	useEffect(() => {
+		Favorites.Events.Is(id).then((is) => setFavorite(is));
+	});
 
 	const resp = useGetEventById(local.id);
 	if (!resp.data) {
 		return null;
 	}
+
 	return (
-		<View
-			style={{
-				flex: 1,
-				backgroundColor: colors.background,
-			}}>
+		<View style={{ flex: 1, backgroundColor: colors.background }}>
 			<Appbar.Header className="">
 				<Appbar.BackAction
 					onPress={() => {
@@ -34,8 +39,19 @@ export default function Page() {
 					}}
 				/>
 				<Appbar.Content title={resp.data.sport.name} />
-
-				<Appbar.Action icon={'heart'} iconColor={colors.primary} />
+				<Appbar.Action
+					icon={favorite ? 'heart' : 'heart-outline'}
+					iconColor={colors.primary}
+					onPress={() => {
+						if (favorite) {
+							Favorites.Events.Remove(id);
+							setFavorite(false);
+						} else {
+							Favorites.Events.Set(id);
+							setFavorite(true);
+						}
+					}}
+				/>
 			</Appbar.Header>
 			<EventPage event={resp.data} />
 		</View>
@@ -70,11 +86,25 @@ function EventGenericPage({ event }: { event: EventGeneric }) {
 	);
 }
 function EventTeamPage({ event }: { event: EventTeam }) {
+	const router = useRouter();
+
+	function pushTeam(id: number) {
+		router.push({
+			pathname: '/teams/',
+			params: {
+				id: id,
+			},
+		});
+	}
+
 	return (
 		<View className="px-3">
 			<List.Section>
 				<List.Item
 					title={event.homeTeam.name}
+					onPress={() => {
+						pushTeam(event.homeTeamId);
+					}}
 					titleStyle={{ fontSize: 20 }}
 					left={(props) => (
 						<Image contentFit="contain" {...props} source={event.homeTeam.icon} className=" h-12 w-12 aspect-square"></Image>
@@ -82,6 +112,9 @@ function EventTeamPage({ event }: { event: EventTeam }) {
 				/>
 				<List.Item
 					title={event.awayTeam.name}
+					onPress={() => {
+						pushTeam(event.awayTeam.id);
+					}}
 					titleStyle={{ fontSize: 20 }}
 					left={(props) => (
 						<Image contentFit="contain" {...props} source={event.awayTeam.icon} className=" h-12 w-12 aspect-square"></Image>

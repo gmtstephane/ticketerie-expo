@@ -1,20 +1,16 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { configureFonts, MD3DarkTheme, MD3LightTheme, useTheme } from 'react-native-paper';
 
 import { Auth } from '@/src/auth/auth';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import Login from './login';
-export {
-	// Catch any errors thrown by the Layout component.
-	ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import axios from 'axios';
 import { PaperProvider } from 'react-native-paper';
 import { ThemeProp } from 'react-native-paper/lib/typescript/types';
 const queryClient = new QueryClient();
@@ -56,14 +52,11 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-	// axios.defaults.baseURL = 'http://localhost:4321/'; // use your own URL here or environment variable
-
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
 	useEffect(() => {
 		Auth.IsLoggedIn()
 			.then((isLoggedIn) => {
-				console.log('isLoggedIn', isLoggedIn);
 				if (isLoggedIn) {
 					setIsLoggedIn(true);
 				} else {
@@ -75,9 +68,6 @@ function RootLayoutNav() {
 			});
 	}, []);
 
-	if (isLoggedIn === null) {
-		return <Text>Loading</Text>;
-	}
 	if (isLoggedIn === false) {
 		console.log('rendering loggin screen');
 		return (
@@ -105,30 +95,51 @@ function RootLayoutNav() {
 			background: '#ffffff',
 			onSecondary: '#ffffff',
 			surface: '#ffffff',
-			onSecondaryContainer: '#ffffff',
+			onSecondaryContainer: '#000000',
 			primary: '#5E81AC',
 			elevation: {
 				level3: '#F2FAFF',
 			},
 			primaryContainer: '#F2FAFF',
+			secondaryContainer: '#F2FAFF',
 		},
-		roundness: 2,
+		roundness: 3,
 	};
 
 	return (
 		<QueryClientProvider client={queryClient}>
 			<PaperProvider theme={lightTheme}>
-				<Stack>
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-					<Stack.Screen name="events" options={{ headerShown: false }} />
-					<Stack.Screen
-						name="login"
-						options={{
-							title: 'Login',
-							headerShown: false,
-						}}
-					/>
-				</Stack>
+				<ThemeProvider
+					value={{
+						dark: false,
+						colors: {
+							primary: '#ffffff',
+							border: '#ffffff',
+							card: 'transparent',
+							notification: 'transparent',
+							text: '#000000',
+							background: 'transparent',
+						},
+					}}>
+					<Stack
+						screenOptions={{
+							contentStyle: { backgroundColor: '#ffffff' },
+						}}>
+						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+						<Stack.Screen name="error" options={{ headerShown: false }} />
+						<Stack.Screen name="eventList" options={{ headerShown: false }} />
+						<Stack.Screen name="profile" options={{ headerShown: false }} />
+						<Stack.Screen name="events" options={{ headerShown: false }} />
+						<Stack.Screen name="teams" options={{ headerShown: false }} />
+						<Stack.Screen
+							name="login"
+							options={{
+								title: 'Login',
+								headerShown: false,
+							}}
+						/>
+					</Stack>
+				</ThemeProvider>
 			</PaperProvider>
 		</QueryClientProvider>
 	);

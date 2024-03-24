@@ -19,8 +19,14 @@ import type {
 import type {
   Event,
   EventDescription,
+  GetEventsParams,
   LoginWithGoogleBody,
   RefreshTokenBody,
+  SearchEvent,
+  SearchEventsParams,
+  SearchTeam,
+  SearchTeamsParams,
+  TeamDetail,
   TokenResponse,
   User
 } from './model'
@@ -186,33 +192,34 @@ export const useGetUser = <TData = Awaited<ReturnType<typeof getUser>>, TError =
  * @summary Get list of events
  */
 export const getEvents = (
-    
+    params?: GetEventsParams,
  options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<EventDescription[]>(
-      {url: `/events`, method: 'GET', signal
+      {url: `/events`, method: 'GET',
+        params, signal
     },
       options);
     }
   
 
-export const getGetEventsQueryKey = () => {
-    return [`/events`] as const;
+export const getGetEventsQueryKey = (params?: GetEventsParams,) => {
+    return [`/events`, ...(params ? [params]: [])] as const;
     }
 
     
-export const getGetEventsQueryOptions = <TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getGetEventsQueryOptions = <TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>(params?: GetEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetEventsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetEventsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvents>>> = ({ signal }) => getEvents(requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvents>>> = ({ signal }) => getEvents(params, requestOptions, signal);
 
       
 
@@ -228,11 +235,11 @@ export type GetEventsQueryError = ErrorType<unknown>
  * @summary Get list of events
  */
 export const useGetEvents = <TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ params?: GetEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
-  const queryOptions = getGetEventsQueryOptions(options)
+  const queryOptions = getGetEventsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -295,6 +302,194 @@ export const useGetEventById = <TData = Awaited<ReturnType<typeof getEventById>>
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
   const queryOptions = getGetEventByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get team by ID
+ */
+export const getTeamById = (
+    id: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<TeamDetail>(
+      {url: `/teams/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetTeamByIdQueryKey = (id: string,) => {
+    return [`/teams/${id}`] as const;
+    }
+
+    
+export const getGetTeamByIdQueryOptions = <TData = Awaited<ReturnType<typeof getTeamById>>, TError = ErrorType<void>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTeamById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTeamByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTeamById>>> = ({ signal }) => getTeamById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTeamById>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTeamByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getTeamById>>>
+export type GetTeamByIdQueryError = ErrorType<void>
+
+/**
+ * @summary Get team by ID
+ */
+export const useGetTeamById = <TData = Awaited<ReturnType<typeof getTeamById>>, TError = ErrorType<void>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTeamById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetTeamByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Search teams
+ */
+export const searchTeams = (
+    params: SearchTeamsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SearchTeam[]>(
+      {url: `/teams/search`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+export const getSearchTeamsQueryKey = (params: SearchTeamsParams,) => {
+    return [`/teams/search`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getSearchTeamsQueryOptions = <TData = Awaited<ReturnType<typeof searchTeams>>, TError = ErrorType<unknown>>(params: SearchTeamsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchTeams>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchTeamsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchTeams>>> = ({ signal }) => searchTeams(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchTeams>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchTeamsQueryResult = NonNullable<Awaited<ReturnType<typeof searchTeams>>>
+export type SearchTeamsQueryError = ErrorType<unknown>
+
+/**
+ * @summary Search teams
+ */
+export const useSearchTeams = <TData = Awaited<ReturnType<typeof searchTeams>>, TError = ErrorType<unknown>>(
+ params: SearchTeamsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchTeams>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getSearchTeamsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Search events
+ */
+export const searchEvents = (
+    params: SearchEventsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SearchEvent[]>(
+      {url: `/events/search`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+export const getSearchEventsQueryKey = (params: SearchEventsParams,) => {
+    return [`/events/search`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getSearchEventsQueryOptions = <TData = Awaited<ReturnType<typeof searchEvents>>, TError = ErrorType<unknown>>(params: SearchEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchEventsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchEvents>>> = ({ signal }) => searchEvents(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchEvents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchEventsQueryResult = NonNullable<Awaited<ReturnType<typeof searchEvents>>>
+export type SearchEventsQueryError = ErrorType<unknown>
+
+/**
+ * @summary Search events
+ */
+export const useSearchEvents = <TData = Awaited<ReturnType<typeof searchEvents>>, TError = ErrorType<unknown>>(
+ params: SearchEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getSearchEventsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

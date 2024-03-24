@@ -39,15 +39,15 @@ export function EventCard({ event }: EventCardProps) {
 					<Card
 						mode={'elevated'}
 						style={{
-							shadowColor: '#000',
-							shadowOpacity: colorScheme == 'dark' ? 0.4 : 0.2,
-							shadowRadius: 2.95,
-							elevation: 1,
-							borderWidth: 0,
+							// shadowColor: '#000',
+							// shadowOpacity: colorScheme == 'dark' ? 0.4 : 0.2,
+							// shadowRadius: 2.95,
+							// elevation: 1,
+							// borderWidth: 0,
 							marginTop: 3,
 							backgroundColor: theme.colors.background,
 						}}
-						className={'w-full h-full  rounded-md -z-10 flex flex-col'}>
+						className={'w-full h-full   -z-10 flex flex-col'}>
 						<Card.Title
 							title={Title}
 							subtitle={Subtitle}
