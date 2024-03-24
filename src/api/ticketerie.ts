@@ -16,46 +16,49 @@ import type {
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query'
-import axios from 'axios'
 import type {
-  AxiosError,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios'
-import type {
+  Event,
+  EventDescription,
   LoginWithGoogleBody,
   RefreshTokenBody,
   TokenResponse,
   User
 } from './model'
+import { customInstance } from './mutator';
+import type { ErrorType, BodyType } from './mutator';
 
 
+
+type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
 
 
 export const loginWithGoogle = (
-    loginWithGoogleBody: LoginWithGoogleBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TokenResponse>> => {
-    
-    return axios.post(
-      `/api/auth/login/google/native`,
-      loginWithGoogleBody,options
-    );
-  }
+    loginWithGoogleBody: BodyType<LoginWithGoogleBody>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<TokenResponse>(
+      {url: `/api/auth/login/google/native`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: loginWithGoogleBody
+    },
+      options);
+    }
+  
 
 
-
-export const getLoginWithGoogleMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginWithGoogle>>, TError,{data: LoginWithGoogleBody}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof loginWithGoogle>>, TError,{data: LoginWithGoogleBody}, TContext> => {
- const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
+export const getLoginWithGoogleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginWithGoogle>>, TError,{data: BodyType<LoginWithGoogleBody>}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof loginWithGoogle>>, TError,{data: BodyType<LoginWithGoogleBody>}, TContext> => {
+ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loginWithGoogle>>, {data: LoginWithGoogleBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loginWithGoogle>>, {data: BodyType<LoginWithGoogleBody>}> = (props) => {
           const {data} = props ?? {};
 
-          return  loginWithGoogle(data,axiosOptions)
+          return  loginWithGoogle(data,requestOptions)
         }
 
         
@@ -64,11 +67,11 @@ export const getLoginWithGoogleMutationOptions = <TError = AxiosError<unknown>,
    return  { mutationFn, ...mutationOptions }}
 
     export type LoginWithGoogleMutationResult = NonNullable<Awaited<ReturnType<typeof loginWithGoogle>>>
-    export type LoginWithGoogleMutationBody = LoginWithGoogleBody
-    export type LoginWithGoogleMutationError = AxiosError<unknown>
+    export type LoginWithGoogleMutationBody = BodyType<LoginWithGoogleBody>
+    export type LoginWithGoogleMutationError = ErrorType<unknown>
 
-    export const useLoginWithGoogle = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginWithGoogle>>, TError,{data: LoginWithGoogleBody}, TContext>, axios?: AxiosRequestConfig}
+    export const useLoginWithGoogle = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginWithGoogle>>, TError,{data: BodyType<LoginWithGoogleBody>}, TContext>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
       const mutationOptions = getLoginWithGoogleMutationOptions(options);
@@ -77,29 +80,32 @@ export const getLoginWithGoogleMutationOptions = <TError = AxiosError<unknown>,
     }
     
 export const refreshToken = (
-    refreshTokenBody: RefreshTokenBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TokenResponse>> => {
-    
-    return axios.post(
-      `/api/auth/refresh-token`,
-      refreshTokenBody,options
-    );
-  }
+    refreshTokenBody: BodyType<RefreshTokenBody>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<TokenResponse>(
+      {url: `/api/auth/refresh-token`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: refreshTokenBody
+    },
+      options);
+    }
+  
 
 
-
-export const getRefreshTokenMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,{data: RefreshTokenBody}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,{data: RefreshTokenBody}, TContext> => {
- const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
+export const getRefreshTokenMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,{data: BodyType<RefreshTokenBody>}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,{data: BodyType<RefreshTokenBody>}, TContext> => {
+ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof refreshToken>>, {data: RefreshTokenBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof refreshToken>>, {data: BodyType<RefreshTokenBody>}> = (props) => {
           const {data} = props ?? {};
 
-          return  refreshToken(data,axiosOptions)
+          return  refreshToken(data,requestOptions)
         }
 
         
@@ -108,11 +114,11 @@ export const getRefreshTokenMutationOptions = <TError = AxiosError<unknown>,
    return  { mutationFn, ...mutationOptions }}
 
     export type RefreshTokenMutationResult = NonNullable<Awaited<ReturnType<typeof refreshToken>>>
-    export type RefreshTokenMutationBody = RefreshTokenBody
-    export type RefreshTokenMutationError = AxiosError<unknown>
+    export type RefreshTokenMutationBody = BodyType<RefreshTokenBody>
+    export type RefreshTokenMutationError = ErrorType<unknown>
 
-    export const useRefreshToken = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,{data: RefreshTokenBody}, TContext>, axios?: AxiosRequestConfig}
+    export const useRefreshToken = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,{data: BodyType<RefreshTokenBody>}, TContext>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
       const mutationOptions = getRefreshTokenMutationOptions(options);
@@ -121,30 +127,33 @@ export const getRefreshTokenMutationOptions = <TError = AxiosError<unknown>,
     }
     
 export const getUser = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<User>> => {
     
-    return axios.get(
-      `/api/user`,options
-    );
-  }
-
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<User>(
+      {url: `/api/user`, method: 'GET', signal
+    },
+      options);
+    }
+  
 
 export const getGetUserQueryKey = () => {
     return [`/api/user`] as const;
     }
 
     
-export const getGetUserQueryOptions = <TData = Awaited<ReturnType<typeof getUser>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetUserQueryOptions = <TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetUserQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({ signal }) => getUser({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({ signal }) => getUser(requestOptions, signal);
 
       
 
@@ -154,14 +163,138 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetUserQueryResult = NonNullable<Awaited<ReturnType<typeof getUser>>>
-export type GetUserQueryError = AxiosError<unknown>
+export type GetUserQueryError = ErrorType<unknown>
 
-export const useGetUser = <TData = Awaited<ReturnType<typeof getUser>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const useGetUser = <TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
   const queryOptions = getGetUserQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get list of events
+ */
+export const getEvents = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<EventDescription[]>(
+      {url: `/events`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetEventsQueryKey = () => {
+    return [`/events`] as const;
+    }
+
+    
+export const getGetEventsQueryOptions = <TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvents>>> = ({ signal }) => getEvents(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEventsQueryResult = NonNullable<Awaited<ReturnType<typeof getEvents>>>
+export type GetEventsQueryError = ErrorType<unknown>
+
+/**
+ * @summary Get list of events
+ */
+export const useGetEvents = <TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetEventsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get event by ID
+ */
+export const getEventById = (
+    id: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Event>(
+      {url: `/events/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetEventByIdQueryKey = (id: string,) => {
+    return [`/events/${id}`] as const;
+    }
+
+    
+export const getGetEventByIdQueryOptions = <TData = Awaited<ReturnType<typeof getEventById>>, TError = ErrorType<void>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventById>>> = ({ signal }) => getEventById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventById>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEventByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getEventById>>>
+export type GetEventByIdQueryError = ErrorType<void>
+
+/**
+ * @summary Get event by ID
+ */
+export const useGetEventById = <TData = Awaited<ReturnType<typeof getEventById>>, TError = ErrorType<void>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetEventByIdQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

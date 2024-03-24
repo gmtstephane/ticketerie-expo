@@ -1,51 +1,113 @@
-import { Button, Image, StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
-import { Auth } from '@/src/auth/auth';
+import { EventDescription, User } from '@/src/api/model';
+import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
+import { Card, Searchbar, useTheme } from 'react-native-paper';
+import { useGetEvents } from '@/src/api/ticketerie';
+import { EventCard } from '@/components/EventCard';
 import { useEffect, useState } from 'react';
-import { User } from '@/api/model';
-import { router } from 'expo-router';
+import { Image } from 'expo-image';
+import { Auth } from '@/src/auth/auth';
 
-export default function TabTwoScreen() {
+export default function Page() {
+	const theme = useTheme();
+
+	const [search, setSearch] = useState('');
 	const [user, setUser] = useState<User | null>(null);
 	useEffect(() => {
-		(async () => {
-			const user = await Auth.User.Get();
-			setUser(user);
-		})();
-	}, [user]);
+		Auth.User.Get().then((u) => setUser(u));
+	}, []);
+
+	const response = useGetEvents();
+	if (!response.data) return null;
+	if (!user) return null;
 
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>Tab One</Text>
-			<Image source={{ uri: user?.picture }} style={{ width: 100, height: 100 }} />
-			{/* <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" /> */}
-			{/* <EditScreenInfo path="app/(tabs)/two.tsx" /> */}
-			<Button
-				title="Logout"
-				onPress={async () => {
-					await Auth.Logout();
-					router.replace('/login');
-				}}
-			/>
+		<SafeAreaView style={{ backgroundColor: theme.colors.background }} className="h-full w-full">
+			<View className="px-4">
+				<View className=" w-full flex flex-row items-center mb-8">
+					<Searchbar
+						className="flex-grow"
+						placeholder="Search"
+						right={(props) => <Image {...props} className="h-8 w-8 rounded-md" source={user.picture}></Image>}
+						onChangeText={(e) => {
+							setSearch(e);
+						}}
+						value={search}
+					/>
+				</View>
+			</View>
+			<ScrollView
+				refreshControl={
+					<RefreshControl
+						refreshing={response.isLoading}
+						onRefresh={response.refetch}
+						colors={[theme.colors.primary]}
+						progressBackgroundColor={theme.colors.background}
+					/>
+				}
+				className="flex-1 gap-y-5 "
+				style={{ backgroundColor: theme.colors.background }}>
+				<EventsPage events={response.data} />
+			</ScrollView>
+		</SafeAreaView>
+	);
+}
+
+function EventsPage({ events }: { events: EventDescription[] }) {
+	UpcomingEvents.Events = events.filter((e) => UpcomingEvents.Condition(e));
+	AllEvents.Events = events.filter((e) => AllEvents.Condition(e));
+
+	const cate = [UpcomingEvents, AllEvents];
+	return (
+		<View className="flex">
+			{cate.map((category) => (
+				<View key={category.Name + 'Container'}>
+					<CategoryView key={category.Name} category={category} />
+				</View>
+			))}
 		</View>
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
+interface Category {
+	Name: string;
+	Description: string;
+	Events: EventDescription[];
+	Condition: (event: EventDescription) => boolean;
+}
+
+let UpcomingEvents: Category = {
+	Name: 'A venir',
+	Description: 'Les événements à venir',
+	Events: [],
+	Condition: (event) => {
+		const now = new Date();
+		const nextWeek = new Date(now);
+		const eventDate = new Date(event.date);
+		nextWeek.setDate(now.getDate() + 7);
+		return eventDate >= now && eventDate <= nextWeek;
 	},
-	title: {
-		fontSize: 20,
-		fontWeight: 'bold',
+};
+
+let AllEvents: Category = {
+	Name: 'Tous les événements',
+	Description: 'Tous les événements',
+	Events: [],
+	Condition: () => {
+		return true;
 	},
-	separator: {
-		marginVertical: 30,
-		height: 1,
-		width: '80%',
-	},
-});
+};
+
+function CategoryView({ category }: { category: Category }) {
+	return (
+		<View>
+			<Card.Title titleVariant="titleLarge" title={category.Name} subtitle={category.Description} className="" />
+			<ScrollView horizontal className="py-3" showsHorizontalScrollIndicator={false}>
+				{category.Events.map((event: EventDescription) => (
+					<View className="max-w-xs h-[180px] p-2" key={event.id + 'Container'}>
+						<EventCard event={event} key={event.id} />
+					</View>
+				))}
+			</ScrollView>
+		</View>
+	);
+}

@@ -1,22 +1,22 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
-import { Text, View } from '@/components/Themed';
 import { useState } from 'react';
 import axios from 'axios';
 import { Auth } from '@/src/auth/auth';
 import { router } from 'expo-router';
+import { Text } from 'react-native-paper';
 
 interface LoginScreenProps {
 	onLoggingSuccess: () => void;
 	onLoggingFailure: (error: Error) => void;
 }
-export default function TabOneScreen({ onLoggingSuccess, onLoggingFailure }: LoginScreenProps) {
+export default function LoginPage({ onLoggingSuccess, onLoggingFailure }: LoginScreenProps) {
 	axios.defaults.baseURL = 'http://localhost:4321/'; // use your own URL here or environment variable
 
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Tab One</Text>
-			<View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+			<View style={styles.separator} />
 			<GoogleSigninButton
 				size={GoogleSigninButton.Size.Wide}
 				color={GoogleSigninButton.Color.Dark}

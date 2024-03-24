@@ -4,16 +4,20 @@ import { useFonts } from 'expo-font';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { configureFonts, MD3DarkTheme, MD3LightTheme, useTheme } from 'react-native-paper';
 
-import { useColorScheme } from '@/components/useColorScheme';
 import { Auth } from '@/src/auth/auth';
 import { Text } from 'react-native';
-import TabOneScreen from './login';
-
+import Login from './login';
 export {
 	// Catch any errors thrown by the Layout component.
 	ErrorBoundary,
 } from 'expo-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import axios from 'axios';
+import { PaperProvider } from 'react-native-paper';
+import { ThemeProp } from 'react-native-paper/lib/typescript/types';
+const queryClient = new QueryClient();
 
 export const unstable_settings = {
 	// Ensure that reloading on `/modal` keeps a back button present.
@@ -26,6 +30,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+		'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+		'Poppins-Italic': require('../assets/fonts/Poppins-Italic.ttf'),
+		'Poppins-BoldItalic': require('../assets/fonts/Poppins-BoldItalic.ttf'),
+		'Poppins-Regular': require('../assets/fonts/Poppins-Regular.ttf'),
 		...FontAwesome.font,
 	});
 
@@ -48,12 +56,11 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-	const colorScheme = useColorScheme();
+	// axios.defaults.baseURL = 'http://localhost:4321/'; // use your own URL here or environment variable
 
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
 	useEffect(() => {
-		console.log('AKOUKOU');
 		Auth.IsLoggedIn()
 			.then((isLoggedIn) => {
 				console.log('isLoggedIn', isLoggedIn);
@@ -74,7 +81,7 @@ function RootLayoutNav() {
 	if (isLoggedIn === false) {
 		console.log('rendering loggin screen');
 		return (
-			<TabOneScreen
+			<Login
 				onLoggingFailure={(e) => {
 					console.log('error', e);
 				}}
@@ -83,23 +90,46 @@ function RootLayoutNav() {
 				}}
 			/>
 		);
-		// <Stack.Screen name="login" options={{ headerShown: false }} />
-
-		// <Text>Wating</Text>
-		// <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-		// 	<Stack>
-		// 	</Stack>
-		// </ThemeProvider>
 	}
 
-	return (
-		<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-			<Stack>
-				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				{/* <Stack.Screen name="login" options={{ headerShown: false }} /> */}
+	const lightTheme: ThemeProp = {
+		...MD3LightTheme,
+		fonts: configureFonts({
+			config: {
+				fontFamily: 'Poppins-Regular',
+				fontStyle: 'normal',
+			},
+		}),
+		colors: {
+			...MD3LightTheme.colors,
+			background: '#ffffff',
+			onSecondary: '#ffffff',
+			surface: '#ffffff',
+			onSecondaryContainer: '#ffffff',
+			primary: '#5E81AC',
+			elevation: {
+				level3: '#F2FAFF',
+			},
+			primaryContainer: '#F2FAFF',
+		},
+		roundness: 2,
+	};
 
-				<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-			</Stack>
-		</ThemeProvider>
+	return (
+		<QueryClientProvider client={queryClient}>
+			<PaperProvider theme={lightTheme}>
+				<Stack>
+					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					<Stack.Screen name="events" options={{ headerShown: false }} />
+					<Stack.Screen
+						name="login"
+						options={{
+							title: 'Login',
+							headerShown: false,
+						}}
+					/>
+				</Stack>
+			</PaperProvider>
+		</QueryClientProvider>
 	);
 }

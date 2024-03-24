@@ -7,8 +7,6 @@ import { decode } from 'base-64';
 global.atob = decode;
 
 export namespace Auth {
-	async function RefreshToken() {}
-
 	export async function Logout() {
 		await Token.Remove();
 		await RefreshToken.Remove();
@@ -16,7 +14,6 @@ export namespace Auth {
 	}
 
 	export async function IsLoggedIn(): Promise<boolean> {
-		console.log('check IsLoggedIn()');
 		//return true if we have token refresh token and user
 		const token = await Token.Get();
 		if (!token) {
@@ -63,7 +60,7 @@ export namespace Auth {
 		}
 	}
 
-	namespace Token {
+	export namespace Token {
 		export async function Set(token: string) {
 			await AsyncStorage.setItem('bearerToken', token);
 		}
@@ -75,7 +72,7 @@ export namespace Auth {
 		}
 	}
 
-	namespace RefreshToken {
+	export namespace RefreshToken {
 		export async function Set(token: string) {
 			await AsyncStorage.setItem('refreshToken', token);
 		}
@@ -90,10 +87,10 @@ export namespace Auth {
 			console.log('refresh token');
 			try {
 				const resp = await refreshToken({ refreshToken: token });
-				await Token.Set(resp.data.token);
-				await RefreshToken.Set(resp.data.refreshToken);
-				const user = await getUser({ headers: { Authorization: `Bearer ${resp.data.token}` } });
-				await User.Set(user.data);
+				await Token.Set(resp.token);
+				await RefreshToken.Set(resp.refreshToken);
+				const user = await getUser();
+				await User.Set(user);
 				console.log('refresh token success');
 			} catch (error) {
 				console.log('refresh token error', error);
@@ -104,9 +101,9 @@ export namespace Auth {
 
 	export namespace Google {
 		// // const CLIENTID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-		// GoogleSignin.configure({
-		// 	// webClientId: CLIENTID, // client ID of type WEB for your server. Required to get the idToken on the user object, and for offline access.
-		// });
+		GoogleSignin.configure({
+			webClientId: '115420024441-o3fet5972ajokablcjcb7jmhuqrvlb9r.apps.googleusercontent.com', // client ID of type WEB for your server. Required to get the idToken on the user object, and for offline access.
+		});
 
 		export async function Login() {
 			try {
@@ -115,11 +112,11 @@ export namespace Auth {
 
 				if (!userInfo.idToken) throw new Error('No idToken');
 				const resp = await loginWithGoogle({ idToken: userInfo.idToken });
-				const user = await getUser({ headers: { Authorization: `Bearer ${resp.data.token}` } });
+				await Token.Set(resp.token);
+				await RefreshToken.Set(resp.refreshToken);
 
-				await Token.Set(resp.data.token);
-				await RefreshToken.Set(resp.data.refreshToken);
-				await User.Set(user.data);
+				const user = await getUser();
+				await User.Set(user);
 			} catch (error) {
 				console.log('error', error);
 				throw error;
