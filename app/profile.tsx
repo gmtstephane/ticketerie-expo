@@ -22,7 +22,7 @@ export default function Profile() {
 							router.back();
 						}}
 					/>
-					<Appbar.Content title={'Favoris'} />
+					<Appbar.Content title={'Profil'} />
 				</Appbar.Header>
 				<View className="pt-10">
 					<View className="px-3">

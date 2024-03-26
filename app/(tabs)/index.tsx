@@ -1,13 +1,14 @@
 import { EventDescription, SearchEvent, User } from '@/src/api/model';
 import { Pressable, RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
-import { Card, Icon, List, Searchbar, SegmentedButtons, Text, useTheme } from 'react-native-paper';
-import { useGetEvents, useSearchEvents, useSearchTeams } from '@/src/api/ticketerie';
+import { Card, Icon, List, Searchbar, SegmentedButtons, Text, TextInput, useTheme } from 'react-native-paper';
+import { getEvents, useGetEvents, useSearchEvents, useSearchTeams } from '@/src/api/ticketerie';
 import { useEffect, useRef, useState } from 'react';
 import { Image } from 'expo-image';
 import { Auth } from '@/src/auth/auth';
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CategoryBuilder, CategoryViewHorizontal } from '@/components/EventCategory';
+import { Cache } from '@/src/cache/cache';
 
 export default function Page() {
 	const theme = useTheme();
@@ -25,8 +26,9 @@ export default function Page() {
 
 	return (
 		<SafeAreaView style={{ backgroundColor: theme.colors.background }} className="h-full w-full">
-			<View className="p-5">
+			<View className="px-5 py-6">
 				<Searchbar
+					elevation={0}
 					ref={searchbarRef}
 					placeholder="Rechercher"
 					onFocus={() => setIsSearching(true)}
@@ -43,13 +45,13 @@ export default function Page() {
 							{isSearching && (
 								<MaterialCommunityIcons
 									onPress={() => {
+										searchbarRef.current.blur();
 										setSearch('');
 										setIsSearching(false);
-										searchbarRef.current.blur();
 									}}
 									name="close"
 									{...props}
-									size={24}
+									size={32}
 								/>
 							)}
 						</View>
@@ -61,8 +63,8 @@ export default function Page() {
 				/>
 			</View>
 
-			{!isSearching && <EventsPage />}
-			{isSearching && <SearchView name={search} />}
+			<EventsPage hidden={isSearching} />
+			<SearchView hidden={!isSearching} name={search} />
 		</SafeAreaView>
 	);
 }
@@ -89,33 +91,46 @@ let AllEvents: CategoryBuilder = {
 	},
 };
 
-function EventsPage() {
-	const response = useGetEvents();
+function EventsPage({ hidden }: { hidden?: boolean }) {
+	const { initEvents } = useLocalSearchParams<{ initEvents: string }>();
+	const eventinit: EventDescription[] = JSON.parse(initEvents);
+
+	const [events, setEvents] = useState<EventDescription[]>(eventinit);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const theme = useTheme();
 	const router = useRouter();
-	if (response.isError) {
-		router.push({ pathname: `/error`, params: { error: response.error.message } });
-		return null;
+
+	function refetch() {
+		setIsRefreshing(true);
+		getEvents()
+			.then((events) => {
+				console.log('new events');
+				setEvents(events);
+			})
+			.catch((e) => {
+				console.error(e);
+			})
+			.finally(() => {
+				setIsRefreshing(false);
+			});
 	}
 
-	if (!response.data) return null;
-
-	UpcomingEvents.Events = response.data.filter((e) => UpcomingEvents.Condition(e));
-	AllEvents.Events = response.data.filter((e) => AllEvents.Condition(e));
+	UpcomingEvents.Events = events.filter((e) => UpcomingEvents.Condition(e));
+	AllEvents.Events = events.filter((e) => AllEvents.Condition(e));
 
 	const cate = [UpcomingEvents, AllEvents];
 	return (
 		<ScrollView
+			style={{ display: hidden ? 'none' : 'flex' }}
 			refreshControl={
 				<RefreshControl
-					refreshing={response.isLoading}
-					onRefresh={response.refetch}
+					refreshing={isRefreshing}
+					onRefresh={refetch}
 					colors={[theme.colors.primary]}
 					progressBackgroundColor={theme.colors.background}
 				/>
 			}
-			className="flex-1 gap-y-5 "
-			style={{ backgroundColor: theme.colors.background }}>
+			className="flex-1 gap-y-5 ">
 			<View className="flex">
 				{cate.map((category) => (
 					<View key={category.Name + 'Container'}>
@@ -133,7 +148,7 @@ function EventsPage() {
 	);
 }
 
-function SearchView({ name }: { name: string }) {
+function SearchView({ name, hidden }: { name: string; hidden?: boolean }) {
 	const [value, setValue] = useState('event');
 
 	const searchResponse = useSearchEvents({ name: name }, { query: { enabled: !!name } });
@@ -143,7 +158,7 @@ function SearchView({ name }: { name: string }) {
 	}
 
 	return (
-		<View className="px-5">
+		<View style={{ display: hidden ? 'none' : 'flex' }} className="px-5">
 			<SegmentedButtons
 				value={value}
 				theme={{}}
@@ -159,7 +174,7 @@ function SearchView({ name }: { name: string }) {
 					},
 				]}
 			/>
-			<ScrollView showsVerticalScrollIndicator={false} className="h-full">
+			<ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} className="h-full">
 				{value === 'event' && <SearchViewEvents name={name} />}
 				{value === 'team' && <SearchViewTeam name={name} />}
 			</ScrollView>

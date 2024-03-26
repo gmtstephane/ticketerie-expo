@@ -214,6 +214,8 @@ components:
         - type
         - min_price
         - date
+        - latitude
+        - longitude
       properties:
         id:
           type: string
@@ -225,6 +227,10 @@ components:
           type: string
         location:
           type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
         sport:
           type: string
         type:

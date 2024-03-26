@@ -1,6 +1,6 @@
 import { EventDescription } from '@/src/api/model';
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Pressable, View, useColorScheme } from 'react-native';
 import { Card, Chip, List, MD3Colors, Text, useTheme } from 'react-native-paper';
 
@@ -14,7 +14,7 @@ export function EventCard({ event }: EventCardProps) {
 	}
 	const colorScheme = useColorScheme();
 	const theme = useTheme();
-
+	const router = useRouter();
 	let Title = event.name;
 	let Subtitle = event.championship;
 
@@ -27,67 +27,64 @@ export function EventCard({ event }: EventCardProps) {
 
 	return (
 		<View>
-			<Link
-				href={{
-					pathname: '/events/',
-					params: {
-						id: event.id,
-					},
-				}}
-				asChild>
-				<Pressable>
-					<Card
-						mode={'elevated'}
-						style={{
-							// shadowColor: '#000',
-							// shadowOpacity: colorScheme == 'dark' ? 0.4 : 0.2,
-							// shadowRadius: 2.95,
-							// elevation: 1,
-							// borderWidth: 0,
-							marginTop: 3,
-							backgroundColor: theme.colors.background,
-						}}
-						className={'w-full h-full   -z-10 flex flex-col'}>
-						<Card.Title
-							title={Title}
-							subtitle={Subtitle}
-							className="absolute"
-							left={(props) => (
-								<Image
-									contentFit="contain"
-									style={{ width: '100%', height: '100%' }}
-									{...props}
-									source={event.icon}
-									className="w-full h-full"></Image>
-							)}
-							// right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
-						/>
-						<Card.Content className="">
-							<View className="w-full  flex-row  h-full flex items-end justify-end">
-								<View className="flex-grow ">
-									<List.Item
-										titleStyle={{ fontSize: 14 }}
-										className="p-0"
-										title={event.location}
-										left={() => <List.Icon color={theme.colors.primary} icon="pin" />}
-									/>
+			<Pressable
+				onPress={() => {
+					if (router.canDismiss()) router.dismissAll();
+					setTimeout(() => {
+						router.push({
+							pathname: '/events/',
+							params: {
+								id: event.id,
+							},
+						});
+					}, 0);
+				}}>
+				<Card
+					mode={'contained'}
+					style={{
+						marginTop: 3,
+						backgroundColor: theme.colors.elevation.level2,
+					}}
+					className={'w-full h-full   -z-10 flex flex-col'}>
+					<Card.Title
+						title={Title}
+						subtitle={Subtitle}
+						className="absolute"
+						left={(props) => (
+							<Image
+								contentFit="contain"
+								style={{ width: '100%', height: '100%' }}
+								{...props}
+								source={event.icon}
+								className="w-full h-full"></Image>
+						)}
+						// right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
+					/>
+					<Card.Content className="">
+						<View className="w-full  flex-row  h-full flex items-end justify-end">
+							<View className="flex-grow ">
+								<List.Item
+									titleStyle={{ fontSize: 14 }}
+									className="p-0"
+									title={event.location}
+									left={({ color }) => <List.Icon color={color} icon="pin" />}
+								/>
 
-									<List.Item
-										titleStyle={{ fontSize: 14 }}
-										title={frenchDate(event.date)}
-										left={() => <List.Icon color={theme.colors.primary} icon="calendar" />}
-									/>
-								</View>
-								<View className=" flex  justify-end pb-3">
-									<Chip style={{ backgroundColor: theme.colors.primaryContainer }}>
-										<Text>{event.min_price}€</Text>
-									</Chip>
-								</View>
+								<List.Item
+									titleStyle={{ fontSize: 14 }}
+									title={frenchDate(event.date)}
+									left={({ color }) => <List.Icon color={color} icon="calendar" />}
+								/>
 							</View>
-						</Card.Content>
-					</Card>
-				</Pressable>
-			</Link>
+							<View className=" flex  justify-end pb-3">
+								<Chip style={{ backgroundColor: theme.colors.background }}>
+									<Text>{event.min_price}€</Text>
+								</Chip>
+							</View>
+						</View>
+					</Card.Content>
+				</Card>
+			</Pressable>
 		</View>
 	);
 }

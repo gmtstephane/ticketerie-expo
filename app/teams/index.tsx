@@ -84,13 +84,13 @@ function InfoSection({ championships, sport, location }: { championships: Champi
 				titleStyle={{ fontSize: 14 }}
 				title={sport.name}
 				className="pl-2"
-				left={(props) => <List.Icon {...props} color={colors.primary} icon="trophy" />}
+				left={(props) => <List.Icon {...props} icon="trophy" />}
 			/>
 			<List.Item
 				titleStyle={{ fontSize: 14 }}
 				title={location.name}
 				className="pl-2"
-				left={(props) => <List.Icon {...props} color={colors.primary} icon="map" />}
+				left={(props) => <List.Icon {...props} icon="map" />}
 			/>
 			<List.Subheader>Championnats</List.Subheader>
 			{championships.map((championship) => (
@@ -123,6 +123,8 @@ function UpComingEventsSection({ locationID, events }: { events: EventTeam[]; lo
 						team: event.homeTeam.name,
 						date: event.eventDate,
 						location: event.location.name,
+						longitude: event.location.longitude,
+						latitude: event.location.latitude,
 						min_price: event.tickets.reduce((acc, ticket) => Math.min(acc, ticket.price), Infinity),
 						sport: event.sport.name,
 						type: 'Team',

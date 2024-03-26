@@ -6,7 +6,8 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useGlobalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import MapView from 'react-native-maps';
 import { Appbar, Chip, List, MD3Colors, Text, useTheme } from 'react-native-paper';
 
 export default function Page() {
@@ -27,7 +28,7 @@ export default function Page() {
 
 	const resp = useGetEventById(local.id);
 	if (!resp.data) {
-		return null;
+		return <View className="h-full w-full" style={{ backgroundColor: colors.background }} />;
 	}
 
 	return (
@@ -42,6 +43,7 @@ export default function Page() {
 				<Appbar.Action
 					icon={favorite ? 'heart' : 'heart-outline'}
 					iconColor={colors.primary}
+					size={32}
 					onPress={() => {
 						if (favorite) {
 							Favorites.Events.Remove(id);
@@ -53,8 +55,38 @@ export default function Page() {
 					}}
 				/>
 			</Appbar.Header>
-			<EventPage event={resp.data} />
+			<ScrollView showsVerticalScrollIndicator={false}>
+				<EventPage event={resp.data} />
+				<LocationView location={resp.data.location} />
+			</ScrollView>
 		</View>
+	);
+}
+
+function LocationView({ location }: { location: Location }) {
+	return (
+		<List.Section className="px-3 pb-10">
+			<List.Subheader>Acces</List.Subheader>
+			<View className="h-48 w-full px-5 rounded-md overflow-hidden ">
+				<View className="h-full w-full rounded-xl bg-red-50 overflow-hidden">
+					<MapView
+						scrollEnabled={false}
+						camera={{
+							center: {
+								latitude: location.latitude,
+								longitude: location.longitude,
+							},
+							zoom: 9,
+							altitude: 1000,
+							heading: 0,
+							pitch: 40,
+						}}
+						className="h-full w-full rounded-md"
+					/>
+				</View>
+			</View>
+			<View className="h-10"></View>
+		</List.Section>
 	);
 }
 
@@ -162,13 +194,13 @@ function InfoSection({ championship, location, eventDate }: InfoSectionProps) {
 				titleStyle={{ fontSize: 14 }}
 				title={location.name}
 				className="pl-6"
-				left={() => <List.Icon color={colors.primary} icon="map-marker" />}
+				left={({ color }) => <List.Icon color={color} icon="map-marker" />}
 			/>
 			<List.Item
 				titleStyle={{ fontSize: 14 }}
 				title={frenchDate(eventDate)}
 				className="pl-6"
-				left={() => <List.Icon color={colors.primary} icon="calendar" />}
+				left={({ color }) => <List.Icon color={color} icon="calendar" />}
 			/>
 		</List.Section>
 	);
@@ -187,8 +219,13 @@ function TicketingSection(tickets: { tickets: Ticket[] }) {
 					title={ticket.ticketing.name}
 					className="pl-2"
 					right={(props) => (
-						<Chip style={{ backgroundColor: colors.primaryContainer }}>
-							<Text>{ticket.price}€</Text>
+						<Chip className="font-semibold">
+							<Text
+								style={{
+									fontWeight: 'bold',
+								}}>
+								{ticket.price}€
+							</Text>
 						</Chip>
 					)}
 					left={(props) => <Image contentFit="contain" {...props} source={ticket.ticketing.icon} className=" h-6 w-6 "></Image>}

@@ -11,7 +11,9 @@ export interface EventDescription {
   date: string;
   icon: string;
   id: string;
+  latitude: number;
   location: string;
+  longitude: number;
   min_price: number;
   name: string;
   sport: string;

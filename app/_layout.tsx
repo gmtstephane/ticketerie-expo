@@ -7,12 +7,13 @@ import { useEffect, useState } from 'react';
 import { configureFonts, MD3DarkTheme, MD3LightTheme, useTheme } from 'react-native-paper';
 
 import { Auth } from '@/src/auth/auth';
-import { Text, View } from 'react-native';
+import { Text, View, useColorScheme } from 'react-native';
 import Login from './login';
 export { ErrorBoundary } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PaperProvider } from 'react-native-paper';
 import { ThemeProp } from 'react-native-paper/lib/typescript/types';
+import { Dark, Light } from '@/assets/colorscheme';
 const queryClient = new QueryClient();
 
 export const unstable_settings = {
@@ -53,7 +54,9 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+	let colorScheme = useColorScheme();
 
+	const colors = useTheme().colors;
 	useEffect(() => {
 		Auth.IsLoggedIn()
 			.then((isLoggedIn) => {
@@ -90,44 +93,54 @@ function RootLayoutNav() {
 				fontStyle: 'normal',
 			},
 		}),
-		colors: {
-			...MD3LightTheme.colors,
-			background: '#ffffff',
-			onSecondary: '#ffffff',
-			surface: '#ffffff',
-			onSecondaryContainer: '#000000',
-			primary: '#5E81AC',
-			elevation: {
-				level3: '#F2FAFF',
-			},
-			primaryContainer: '#F2FAFF',
-			secondaryContainer: '#F2FAFF',
-		},
+		colors: Light,
 		roundness: 3,
 	};
 
+	const darkTheme: ThemeProp = {
+		...MD3LightTheme,
+		fonts: configureFonts({
+			config: {
+				fontFamily: 'Poppins-Regular',
+				fontStyle: 'normal',
+			},
+		}),
+		colors: Dark,
+		roundness: 3,
+	};
+
+	let scheme = colorScheme === 'dark' ? darkTheme : lightTheme;
+	let cc = colorScheme === 'dark' ? Dark : Light;
 	return (
 		<QueryClientProvider client={queryClient}>
-			<PaperProvider theme={lightTheme}>
+			<PaperProvider theme={scheme}>
 				<ThemeProvider
 					value={{
-						dark: false,
+						dark: colorScheme === 'dark',
 						colors: {
-							primary: '#ffffff',
-							border: '#ffffff',
-							card: 'transparent',
+							primary: cc.primary,
+							border: cc.onBackground,
+							card: cc.onPrimaryContainer,
 							notification: 'transparent',
 							text: '#000000',
-							background: 'transparent',
+							background: cc.background,
 						},
 					}}>
 					<Stack
 						screenOptions={{
-							contentStyle: { backgroundColor: '#ffffff' },
+							contentStyle: { backgroundColor: colors.background },
 						}}>
 						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 						<Stack.Screen name="error" options={{ headerShown: false }} />
 						<Stack.Screen name="eventList" options={{ headerShown: false }} />
+						<Stack.Screen
+							name="locationList"
+							options={{
+								presentation: 'modal',
+								headerShown: false,
+							}}
+						/>
+
 						<Stack.Screen name="profile" options={{ headerShown: false }} />
 						<Stack.Screen name="events" options={{ headerShown: false }} />
 						<Stack.Screen name="teams" options={{ headerShown: false }} />
