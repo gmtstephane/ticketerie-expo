@@ -1,7 +1,7 @@
 import { Category, CategoryViewVertical } from '@/components/EventCategory';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { Appbar, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 
 export default function CategoryView() {
 	const global = useGlobalSearchParams();

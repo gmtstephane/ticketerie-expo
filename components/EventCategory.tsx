@@ -54,7 +54,6 @@ export function CategoryViewHorizontal({ category, onPress }: { category: Catego
 export function CategoryViewVertical({ category }: { category: Category; onRefresh?: () => void }) {
 	return (
 		<View className="flex items-center h-full">
-			{/* <Card.Title titleVariant="titleLarge" title={category.Name} subtitle={category.Description} className="" /> */}
 			<ScrollView className="py-3" showsVerticalScrollIndicator={false}>
 				{category.Events.map((event: EventDescription) => (
 					<View className="max-w-xs h-[180px] p-2" key={event.id + 'Container'}>
